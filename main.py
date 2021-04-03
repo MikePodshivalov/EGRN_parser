@@ -2,6 +2,9 @@ import os, glob
 import re
 import zipfile
 import xml.etree.ElementTree as ET
+import shutil
+from time import sleep
+import xml.dom.minidom as minidom
 
 
 def input_path_zip():
@@ -48,10 +51,13 @@ def xml_read(list_path):
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
         xml_parse(xml_ET)
+        break
 
 
 def xml_parse(xml):
-    pass
+    for child in xml.iter():
+        if child is not None:
+            print(child.tag, child.text)
 
 
 list_zip_files, path_zip = input_path_zip()
@@ -65,4 +71,6 @@ list_test = zipfile_extractall_first(list_zip_files, path_zip)
 new_path = path_zip + '\\test\\'
 
 list_xml_files = zipfile_extractall_second(list_test, new_path)
-xml_read(list_xml_files)
+print(xml_read(list_xml_files))
+sleep(2)
+shutil.rmtree(new_path, True)
