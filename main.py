@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 import shutil
 from time import sleep
 import openpyxl
+from bs4 import BeautifulSoup
 
 
 def input_path_zip():
@@ -72,13 +73,13 @@ def list_parser(nl):
         print(nl[2][1]['CadastralNumber'])
         print(nl[2][1]['DateCreated'])
 
-    # try:
-    #     print(nl[2][1]['CadastralNumber'])
-    #     print(nl[2][1]['DateCreated'])
-    #     print(nl[6][2])
-    #     print(nl[13][2])
-    # except IndexError:
-    #     print('-'*40)
+
+# def bs_parse():
+#     with open("C:\\Users\\derip\\OneDrive\\Рабочий стол\\Новая папка (4)\\kv_3e204e14-80d8-4fae-88d5-"
+#               "1daa89fe47b5.xml", encoding='utf-8') as file:
+#         bs_content = BeautifulSoup(file.read(), 'lxml')
+#         print(bs_content.find('innercadastralnumbers').text)
+#         print(bs_content)
 
 
 list_zip_files, path_zip = input_path_zip()
