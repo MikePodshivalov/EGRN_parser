@@ -50,13 +50,20 @@ def xml_read(list_path):
     '''получаем список xml файлов и возвращаем элемент ET'''
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
-        xml_parse(xml_ET)
+        xml_scrap(xml_ET)
+        sleep(1)
 
 
-def xml_parse(xml):
-    for child in xml.iter():
-        if child is not None:
+def xml_scrap(xml):
+    '''собираем всю информацию (tag, attrib, text всех элементов) в 3 списка, далее...'''
+    mylist1 = [item.tag for item in xml.iter()]
+    mylist2 = [item.attrib for item in xml.iter()]
+    mylist3 = [item.text for item in xml.iter()]
 
+
+
+def list_parser(list1, list2, list3):
+    pass
 
 
 list_zip_files, path_zip = input_path_zip()
