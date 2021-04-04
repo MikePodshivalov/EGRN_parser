@@ -43,7 +43,7 @@ def zipfile_extractall_second(list_file, path):
             except FileNotFoundError:
                 print('Extracting...')
     os.chdir(path)
-    return glob.glob("*.xml")
+    return glob.glob("kv*.xml")
 
 
 def xml_read(list_path):
@@ -51,7 +51,6 @@ def xml_read(list_path):
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
         xml_scrap(xml_ET)
-        sleep(1)
 
 
 def xml_scrap(xml):
@@ -59,11 +58,27 @@ def xml_scrap(xml):
     mylist1 = [item.tag for item in xml.iter()]
     mylist2 = [item.attrib for item in xml.iter()]
     mylist3 = [item.text for item in xml.iter()]
+    new_list = list(zip(mylist1, mylist2, mylist3))
+    list_parser(new_list)
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    wb.save('ЕГРН.xlsx')
 
 
+# [2][1]['CadastralNumber']
+# [2][1]['DateCreated']
+def list_parser(nl):
+    if 'KPOKS' in nl[0][0]:
+        print(nl[2][1]['CadastralNumber'])
+        print(nl[2][1]['DateCreated'])
 
-def list_parser(list1, list2, list3):
-    pass
+    # try:
+    #     print(nl[2][1]['CadastralNumber'])
+    #     print(nl[2][1]['DateCreated'])
+    #     print(nl[6][2])
+    #     print(nl[13][2])
+    # except IndexError:
+    #     print('-'*40)
 
 
 list_zip_files, path_zip = input_path_zip()
