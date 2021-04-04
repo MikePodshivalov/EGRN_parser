@@ -4,7 +4,7 @@ import zipfile
 import xml.etree.ElementTree as ET
 import shutil
 from time import sleep
-import xml.dom.minidom as minidom
+import openpyxl
 
 
 def input_path_zip():
@@ -51,13 +51,12 @@ def xml_read(list_path):
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
         xml_parse(xml_ET)
-        break
 
 
 def xml_parse(xml):
     for child in xml.iter():
         if child is not None:
-            print(child.tag, child.text)
+
 
 
 list_zip_files, path_zip = input_path_zip()
