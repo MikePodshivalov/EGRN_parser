@@ -7,6 +7,9 @@ from time import sleep
 import openpyxl
 from bs4 import BeautifulSoup
 
+list_result = []
+dict_result = {}
+
 
 def input_path_zip():
     '''вводим путь до выписок ЕГРН
@@ -52,6 +55,39 @@ def xml_read(list_path):
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
         xml_scrap(xml_ET)
+        xml_bs(file)
+
+
+def xml_bs(xml):
+    with open(xml, encoding='utf-8') as file:
+        bs_content = BeautifulSoup(file.read(), 'lxml')
+        if bs_content.find('realty'):   # для не ЗУ
+            print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
+            print(bs_content.find('realty').findNext().attrs['datecreated'])
+            if bs_content.find('cadastralnumberoks'):
+                print(bs_content.find('cadastralnumberoks').text)
+            if bs_content.find('adrs:note'):
+                print(bs_content.find('adrs:note').text)
+            print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
+            print('-' * 50)
+        if bs_content.find('parcels'):  # для ЗУ
+            print(bs_content.find('parcels').findNext().attrs['cadastralnumber'])
+            print(bs_content.find('parcels').findNext().attrs['datecreated'])
+            if bs_content.find('innercadastralnumbers'):
+                print(bs_content.find('innercadastralnumbers').text)
+            if bs_content.find('adrs:note'):
+                print(bs_content.find('adrs:note').text)
+            print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
+            print('-' * 50)
+        if bs_content.find('innercadastralnumbers') is not None:
+            list_result.append(bs_content.find('innercadastralnumbers').text)
+            list_result.append(bs_content.find('innercadastralnumbers').text)
+        # print(bs_content.find('innercadastralnumbers').text)
+        # print(bs_content.find('CadastralNumberOKS').text)
+        # print(bs_content.find('Area').text)
+        # print(bs_content.find('Note').text)
+        # print(bs_content.find('CadastralCost').text + ' рублей')
+        # print(bs_content.find('Note').text)
 
 
 def xml_scrap(xml):
@@ -61,17 +97,23 @@ def xml_scrap(xml):
     mylist3 = [item.text for item in xml.iter()]
     new_list = list(zip(mylist1, mylist2, mylist3))
     list_parser(new_list)
-    wb = openpyxl.Workbook()
-    sheet = wb.active
-    wb.save('ЕГРН.xlsx')
 
 
 # [2][1]['CadastralNumber']
 # [2][1]['DateCreated']
 def list_parser(nl):
-    if 'KPOKS' in nl[0][0]:
-        print(nl[2][1]['CadastralNumber'])
-        print(nl[2][1]['DateCreated'])
+    # print(nl)
+    # if 'KPOKS' in nl[0][0]:
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    # col = 'A'  # буква столбца, куда будет писаться информация
+    # wb['A1'] = nl[2][1]['CadastralNumber']
+    # wb[col + str(i)] = nl[2][1]['DateCreated']
+    wb.save('ЕГРН.xlsx')
+    list_result.append(nl[2][1]['CadastralNumber'])
+    list_result.append(nl[2][1]['DateCreated'])
+    dict_result['Кадастровый номер'] = nl[2][1]['CadastralNumber']
+    dict_result['Дата присвоения кадастрового номера'] = nl[2][1]['DateCreated']
 
 
 # def bs_parse():
@@ -96,3 +138,5 @@ list_xml_files = zipfile_extractall_second(list_test, new_path)
 print(xml_read(list_xml_files))
 sleep(2)
 shutil.rmtree(new_path, True)
+# print(list_result)
+# print(dict_result)
