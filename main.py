@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 list_result = []
 dict_result = {}
-chek_type = {
+chek_realty_type = {
                 '002001002000': 'Здание',
                 '002001003000': 'Помещение',
                 '002001004000': 'Сооружение',
@@ -73,7 +73,7 @@ def xml_bs(xml):
         bs_content = BeautifulSoup(file.read(), 'lxml')
 
         if bs_content.find('realty'):   # для не ЗУ
-            print(chek_type[bs_content.find('objecttype').text])
+            print(chek_realty_type[bs_content.find('objecttype').text])
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
             print(bs_content.find('realty').findNext().attrs['datecreated'])
             if bs_content.find('cadastralnumberoks'):
