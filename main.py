@@ -64,7 +64,7 @@ def xml_read(list_path):
     '''получаем список xml файлов и возвращаем элемент ET'''
     for file in list_path:
         xml_ET = ET.parse(file).getroot()
-        xml_scrap(xml_ET)
+        # xml_scrap(xml_ET)
         xml_bs(file)
 
 
@@ -93,18 +93,18 @@ def xml_bs(xml):
                 print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
             print('-' * 50)
-        if bs_content.find('innercadastralnumbers') is not None:
-            list_result.append(bs_content.find('innercadastralnumbers').text)
-            list_result.append(bs_content.find('innercadastralnumbers').text)
+        # if bs_content.find('innercadastralnumbers') is not None:
+        #     list_result.append(bs_content.find('innercadastralnumbers').text)
+        #     list_result.append(bs_content.find('innercadastralnumbers').text)
 
 
-def xml_scrap(xml):
-    '''собираем всю информацию (tag, attrib, text всех элементов) в 3 списка, далее...'''
-    mylist1 = [item.tag for item in xml.iter()]
-    mylist2 = [item.attrib for item in xml.iter()]
-    mylist3 = [item.text for item in xml.iter()]
-    new_list = list(zip(mylist1, mylist2, mylist3))
-    list_parser(new_list)
+# def xml_scrap(xml):
+#     '''собираем всю информацию (tag, attrib, text всех элементов) в 3 списка, далее...'''
+#     mylist1 = [item.tag for item in xml.iter()]
+#     mylist2 = [item.attrib for item in xml.iter()]
+#     mylist3 = [item.text for item in xml.iter()]
+#     new_list = list(zip(mylist1, mylist2, mylist3))
+#     list_parser(new_list)
 
 
 # [2][1]['CadastralNumber']
