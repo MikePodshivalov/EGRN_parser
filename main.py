@@ -73,11 +73,18 @@ def xml_bs(xml):
         bs_content = BeautifulSoup(file.read(), 'lxml')
 
         if bs_content.find('realty'):   # для не ЗУ
+            # dict_result[bs_content.find('realty').findNext().attrs['cadastralnumber']] = {
+            #     'Наименование'chek_realty_type[bs_content.find('objecttype').text]
+            #
+            #
+            # }
+
             print(chek_realty_type[bs_content.find('objecttype').text])
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
             print(bs_content.find('realty').findNext().attrs['datecreated'])
             if bs_content.find('cadastralnumberoks'):
-                print(bs_content.find('cadastralnumberoks').text)
+                print('Кадастровые номера иных объектов недвижимости, '
+                      'в пределах которых расположен объект недвижимости', bs_content.find('cadastralnumberoks').text)
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
@@ -88,7 +95,8 @@ def xml_bs(xml):
             print(bs_content.find('parcels').findNext().attrs['cadastralnumber'])
             print(bs_content.find('parcels').findNext().attrs['datecreated'])
             if bs_content.find('innercadastralnumbers'):
-                print(bs_content.find('innercadastralnumbers').text)
+                print('Кадастровые номера расположенных в пределах земельного '
+                      'участка объектов недвижимости', bs_content.find('innercadastralnumbers').text)
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
@@ -143,8 +151,12 @@ list_test = zipfile_extractall_first(list_zip_files, path_zip)
 new_path = path_zip + '\\test\\'
 
 list_xml_files = zipfile_extractall_second(list_test, new_path)
-print(xml_read(list_xml_files))
+xml_read(list_xml_files)
+if glob.glob("obj*.xml"):
+    print('файл типа obj: ')
+    for name_file in glob.glob("obj*.xml"):
+        print(name_file)
 sleep(2)
-shutil.rmtree(new_path, True)
+# shutil.rmtree(new_path, True)
 # print(list_result)
 # print(dict_result)
