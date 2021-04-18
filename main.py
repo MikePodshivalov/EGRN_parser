@@ -19,6 +19,21 @@ chek_realty_type = {
     '002001009000': 'Машино-место',
     '002001010000': 'Иной объект недвижимости'
 }
+owner_type = {
+    '001001000000': 'Собственность (индивидуальная)',
+    '001002000000': 'Долевая собственность',
+    '001003000000': 'Совместная собственность',
+    '001004000000': 'Хозяйственное ведение',
+    '001005000000': 'Оперативное управление',
+    '001006000000': 'Пожизненное наследуемое владение',
+    '001007000000': 'Постоянное (бессрочное) пользование',
+    '001009000000': 'Владение, пользование и распоряжение Центральным банком Российской Федерации',
+    '001011000000': 'Отказ от права собственности, постоянного (бессрочного) пользования, пожизненного наследуемого '
+                    'владения на земельный участок либо об отказе от права собственности на земельную долю',
+    '022010000000': 'Доверительное управление (ПИФ)',
+    '022006000000': 'Аренда',
+    '022097001000': 'Концессия'
+}
 
 
 def input_path_zip():
@@ -73,13 +88,13 @@ def xml_read(list_path):
 def xml_bs(xml):
     with open(xml, encoding='utf-8') as file:
         bs_content = BeautifulSoup(file.read(), 'lxml')
-        if bs_content.find('realty'):  # для не ЗУ
-            # dict_result[bs_content.find('realty').findNext().attrs['cadastralnumber']] = {
-            #     'Наименование'chek_realty_type[bs_content.find('objecttype').text]
-            #
+        # dict_result[bs_content.find('realty').findNext().attrs['cadastralnumber']] = {
+        #     'Наименование'chek_realty_type[bs_content.find('objecttype').text]
+        #
 
-            #
-            # }
+        #
+        # }
+        if bs_content.find('realty'):  # для не ЗУ
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'], ';', sep='')
             print(bs_content.find('declarattribute').attrs['requerynumber'])
@@ -89,11 +104,27 @@ def xml_bs(xml):
                       'в пределах которых расположен объект недвижимости', bs_content.find('cadastralnumberoks').text)
             print('')
             print(chek_realty_type[bs_content.find('objecttype').text])
-            print(bs_content.find('area').nextSibling)
+            if bs_content.find('rights'):
+                print(bs_content.find('rights').find('name').text)
+            # if bs_content.find('registration').find('name'):
+            #     print(bs_content.find('registration').find('name').text)
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
+            else:
+                print(bs_content.find('address').find('adrs:postalcode').text, end=', ')
+                print(bs_content.find('address').find('adrs:region').text, end=', ')
+                if bs_content.find('adrs:urbandistrict'):
+                    print(bs_content.find('adrs:urbandistrict').attrs['name'],
+                          bs_content.find('adrs:urbandistrict').attrs['type'], sep=' ', end=', ')
+                print(bs_content.find('adrs:street').attrs['name'],
+                      bs_content.find('adrs:street').attrs['type'], sep=' ', end=', ')
+                print(bs_content.find('adrs:level1').attrs['type'],
+                      bs_content.find('adrs:level1').attrs['value'], sep=' ', end=', ')
+                print(bs_content.find('adrs:level3').attrs['type'],
+                      bs_content.find('adrs:level3').attrs['value'], sep=' ', end=', ')
+                print()
+            print(bs_content.find('area').nextSibling)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
-            print(bs_content.find('address').text)
             print('-' * 50)
 
         if bs_content.find('parcels'):  # для ЗУ
@@ -106,15 +137,17 @@ def xml_bs(xml):
                 print('Кадастровые номера расположенных в пределах земельного '
                       'участка объектов недвижимости', bs_content.find('innercadastralnumbers').text)
             print('Земельный участок')
+            if bs_content.find('rights'):
+                print(bs_content.find('rights').find('name').text)
             print(bs_content.find('area').findNext().nextSibling)
             print('specialnote')
             if bs_content.find('specialnote'):
                 print(bs_content.find('specialnote').text)
-            # if bs_content.find('adrs:note'):
-            print(bs_content.find('adrs:note').text)
+            if bs_content.find('adrs:note'):
+                print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
             print('-' * 50)
-        print(bs_content)
+        # print(bs_content)
         # if bs_content.find('innercadastralnumbers') is not None:
         #     list_result.append(bs_content.find('innercadastralnumbers').text)
         #     list_result.append(bs_content.find('innercadastralnumbers').text)
