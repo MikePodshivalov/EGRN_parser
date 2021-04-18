@@ -111,7 +111,6 @@ def xml_read(list_path):
         # xml_ET = ET.parse(file).getroot()
         # xml_scrap(xml_ET)
         xml_bs(file)
-        i += 1
 
 
 def xml_bs(xml):
@@ -150,12 +149,21 @@ def xml_bs(xml):
                 print(bs_content.find('adrs:level1').attrs['type'],
                       bs_content.find('adrs:level1').attrs['value'], sep=' ', end=', ')
                 print(bs_content.find('adrs:level3').attrs['type'],
-                      bs_content.find('adrs:level3').attrs['value'], sep=' ', end=', ')
+                      bs_content.find('adrs:level3').attrs['value'], sep=' ')
                 print()
             print(bs_content.find('area').nextSibling)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
             for elem in bs_content.find_all('encumbrance'):
-                print(elem.text)
+                print(encum_type[elem.find('type').text], end=' ')
+                if elem.find('term'):
+                    print(elem.find('term').text, end=' ')
+                if elem.find('stopped'):
+                    print(elem.find('stopped').text, end=' ')
+                if elem.find('owner'):
+                    if elem.find('person'):
+                        print('в пользу', elem.find('person').find('content').text)
+                    elif elem.find('organization'):
+                        print('в пользу', elem.find('organization').find('content').text)
                 print('-' * 30)
             print('-' * 50)
         if bs_content.find('parcels'):  # для ЗУ
@@ -178,8 +186,18 @@ def xml_bs(xml):
                 print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
             for elem in bs_content.find_all('encumbrance'):
-                print(elem.text)
+                print(encum_type[elem.find('type').text], end=' ')
+                if elem.find('term'):
+                    print(elem.find('term').text, end=' ')
+                if elem.find('stopped'):
+                    print(elem.find('stopped').text, end=' ')
+                if elem.find('owner'):
+                    if elem.find('person'):
+                        print('в пользу', elem.find('person').find('content').text)
+                    elif elem.find('organization'):
+                        print('в пользу', elem.find('organization').find('content').text)
                 print('-' * 30)
+
             print('-' * 50)
         # print(bs_content)
         # if bs_content.find('innercadastralnumbers') is not None:
@@ -237,7 +255,6 @@ if glob.glob("obj*.xml"):
     print('файл типа obj: ')
     for name_file in glob.glob("obj*.xml"):
         print(name_file)
-sleep(2)
 # shutil.rmtree(new_path, True)
 # print(list_result)
 # print(dict_result)
