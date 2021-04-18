@@ -132,10 +132,6 @@ def xml_bs(xml):
                       'в пределах которых расположен объект недвижимости', bs_content.find('cadastralnumberoks').text)
             print('')
             print(chek_realty_type[bs_content.find('objecttype').text])
-            if bs_content.find('rights'):
-                print(bs_content.find('rights').find('name').text)
-            # if bs_content.find('registration').find('name'):
-            #     print(bs_content.find('registration').find('name').text)
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
             else:
@@ -153,19 +149,6 @@ def xml_bs(xml):
                 print()
             print(bs_content.find('area').nextSibling)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
-            for elem in bs_content.find_all('encumbrance'):
-                print(encum_type[elem.find('type').text], end=' ')
-                if elem.find('term'):
-                    print(elem.find('term').text, end=' ')
-                if elem.find('stopped'):
-                    print(elem.find('stopped').text, end=' ')
-                if elem.find('owner'):
-                    if elem.find('person'):
-                        print('в пользу', elem.find('person').find('content').text)
-                    elif elem.find('organization'):
-                        print('в пользу', elem.find('organization').find('content').text)
-                print('-' * 30)
-            print('-' * 50)
         if bs_content.find('parcels'):  # для ЗУ
             print(bs_content.find('parcels').findNext().attrs['cadastralnumber'])
             print(bs_content.find('parcels').findNext().attrs['cadastralnumber'], ';', sep='')
@@ -185,20 +168,26 @@ def xml_bs(xml):
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
-            for elem in bs_content.find_all('encumbrance'):
-                print(encum_type[elem.find('type').text], end=' ')
-                if elem.find('term'):
-                    print(elem.find('term').text, end=' ')
-                if elem.find('stopped'):
-                    print(elem.find('stopped').text, end=' ')
-                if elem.find('owner'):
-                    if elem.find('person'):
-                        print('в пользу', elem.find('person').find('content').text)
-                    elif elem.find('organization'):
-                        print('в пользу', elem.find('organization').find('content').text)
-                print('-' * 30)
+        for elem in bs_content.find_all('encumbrance'):
+            print(encum_type[elem.find('type').text], end=' ')
+            if elem.find('term'):
+                print(elem.find('term').text, end=' ')
+            if elem.find('stopped'):
+                print(elem.find('stopped').text, end=' ')
+            if elem.find('owner'):
+                if elem.find('person'):
+                    print('в пользу', elem.find('person').find('content').text)
+                elif elem.find('organization'):
+                    print('в пользу', elem.find('organization').find('content').text)
+            print('-' * 30)
 
-            print('-' * 50)
+        if bs_content.find('right'):
+            try:
+                print(owner_type[bs_content.find('right').find('type').text])
+            except KeyError:
+                pass
+
+        print('-' * 50)
         # print(bs_content)
         # if bs_content.find('innercadastralnumbers') is not None:
         #     list_result.append(bs_content.find('innercadastralnumbers').text)
