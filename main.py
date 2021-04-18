@@ -116,12 +116,6 @@ def xml_read(list_path):
 def xml_bs(xml):
     with open(xml, encoding='utf-8') as file:
         bs_content = BeautifulSoup(file.read(), 'lxml')
-        # dict_result[bs_content.find('realty').findNext().attrs['cadastralnumber']] = {
-        #     'Наименование'chek_realty_type[bs_content.find('objecttype').text]
-        #
-
-        #
-        # }
         if bs_content.find('realty'):  # для не ЗУ
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'], ';', sep='')
@@ -134,6 +128,7 @@ def xml_bs(xml):
             print(chek_realty_type[bs_content.find('objecttype').text])
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
+                list_result.append(bs_content.find('adrs:note').text)
             else:
                 print(bs_content.find('address').find('adrs:postalcode').text, end=', ')
                 print(bs_content.find('address').find('adrs:region').text, end=', ')
@@ -189,9 +184,15 @@ def xml_bs(xml):
 
         print('-' * 50)
         # print(bs_content)
-        # if bs_content.find('innercadastralnumbers') is not None:
-        #     list_result.append(bs_content.find('innercadastralnumbers').text)
-        #     list_result.append(bs_content.find('innercadastralnumbers').text)
+
+
+# def writer_to_excel(text):
+#     wb = openpyxl.Workbook()
+#     # sheet = wb.active
+#     # # col = 'A'  # буква столбца, куда будет писаться информация
+    # # wb['A1'] = nl[2][1]['CadastralNumber']
+    # # wb[col + str(i)] = nl[2][1]['DateCreated']
+    # wb.save('ЕГРН.xlsx')
 
 
 # def xml_scrap(xml):
@@ -240,10 +241,12 @@ new_path = path_zip + '\\test\\'
 
 list_xml_files = zipfile_extractall_second(list_test, new_path)
 xml_read(list_xml_files)
+print(list_result)
 if glob.glob("obj*.xml"):
     print('файл типа obj: ')
     for name_file in glob.glob("obj*.xml"):
         print(name_file)
+
 # shutil.rmtree(new_path, True)
 # print(list_result)
 # print(dict_result)
