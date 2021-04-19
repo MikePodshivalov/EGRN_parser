@@ -7,8 +7,7 @@ from time import sleep
 import openpyxl
 from bs4 import BeautifulSoup
 
-list_result = []
-dict_result = {}
+list_encum = []
 chek_realty_type = {
     '002001002000': 'Здание',
     '002001003000': 'Помещение',
@@ -64,6 +63,47 @@ encum_type = {
     '022099000000': 'Прочие ограничения прав и обременения объекта недвижимости'
 }
 
+subject_num = {'01': 'Республика Адыгея (Адыгея)', '02': 'Республика Башкортостан', '03': 'Республика Бурятия',
+               '04': 'Республика Алтай', '05': 'Республика Дагестан', '06': 'Республика Ингушетия',
+               '07': 'Кабардино-Балкарская Республика', '08': 'Республика Калмыкия',
+               '09': 'Карачаево-Черкесская Республика',
+               '10': 'Республика Карелия', '11': 'Республика Коми', '12': 'Республика Марий Эл',
+               '13': 'Республика Мордовия',
+               '14': 'Республика Саха (Якутия)', '15': 'Республика Северная Осетия Алания',
+               '16': 'Республика Татарстан (Татарстан)',
+               '17': 'Республика Тыва', '18': 'Удмуртская Республика', '19': 'Республика Хакасия',
+               '20': 'Чеченская Республика',
+               '21': 'Чувашская Республика Чувашия', '22': 'Алтайский край', '23': 'Краснодарский край',
+               '24': 'Красноярский край',
+               '25': 'Приморский край', '26': 'Ставропольский край', '27': 'Хабаровский край', '28': 'Амурская область',
+               '29': 'Архангельская область', '30': 'Астраханская область', '31': 'Белгородская область',
+               '32': 'Брянская область',
+               '33': 'Владимирская область', '34': 'Волгоградская область', '35': 'Вологодская область',
+               '36': 'Воронежская область',
+               '37': 'Ивановская область', '38': 'Иркутская область', '39': 'Калининградская область',
+               '40': 'Калужская область',
+               '41': 'Камчатский край', '42': 'Кемеровская область', '43': 'Кировская область',
+               '44': 'Костромская область',
+               '45': 'Курганская область', '46': 'Курская область', '47': 'Ленинградская область',
+               '48': 'Липецкая область',
+               '49': 'Магаданская область', '50': 'Московская область', '51': 'Мурманская область',
+               '52': 'Нижегородская область',
+               '53': 'Новгородская область', '54': 'Новосибирская область', '55': 'Омская область',
+               '56': 'Оренбургская область',
+               '57': 'Орловская область', '58': 'Пензенская область', '59': 'Пермский край', '60': 'Псковская область',
+               '61': 'Ростовская область', '62': 'Рязанская область', '63': 'Самарская область',
+               '64': 'Саратовская область',
+               '65': 'Сахалинская область', '66': 'Свердловская область', '67': 'Смоленская область',
+               '68': 'Тамбовская область',
+               '69': 'Тверская область', '70': 'Томская область', '71': 'Тульская область', '72': 'Тюменская область',
+               '73': 'Ульяновская область', '74': 'Челябинская область', '75': 'Забайкальский край',
+               '76': 'Ярославская область',
+               '77': 'г. Москва', '78': 'г. Санкт-Петербург', '79': 'Еврейская автономная область',
+               '83': 'Ненецкий автономный округ', '86': 'Ханты-Мансийский автономный округ – Югра',
+               '87': 'Чукотский автономный округ', '89': 'Ямало-Ненецкий автономный округ', '91': 'Республика Крым',
+               '92': 'г. Севастополь', '99': 'Иные территории, включая город и космодром Байконур'
+               }
+
 
 def input_path_zip():
     '''вводим путь до выписок ЕГРН
@@ -117,6 +157,12 @@ def xml_bs(xml):
     with open(xml, encoding='utf-8') as file:
         bs_content = BeautifulSoup(file.read(), 'lxml')
         if bs_content.find('realty'):  # для не ЗУ
+            dict_result = {
+                'Кадастровый номер': bs_content.find('realty').findNext().attrs['cadastralnumber'],
+                'Кадастровый номер;': bs_content.find('realty').findNext().attrs['cadastralnumber'] + ';',
+                'Номер запроса': bs_content.find('declarattribute').attrs['requerynumber'],
+                'Дата присвоения кадастрового номера': bs_content.find('realty').findNext().attrs['datecreated']
+            }
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
             print(bs_content.find('realty').findNext().attrs['cadastralnumber'], ';', sep='')
             print(bs_content.find('declarattribute').attrs['requerynumber'])
@@ -124,11 +170,17 @@ def xml_bs(xml):
             if bs_content.find('cadastralnumberoks'):
                 print('Кадастровые номера иных объектов недвижимости, '
                       'в пределах которых расположен объект недвижимости', bs_content.find('cadastralnumberoks').text)
+                dict_result['Кадастровые номера иных объектов недвижимости, в пределах ' \
+                            'которых расположен объект недвижимости'] = bs_content.find('cadastralnumberoks').text
+            else:
+                dict_result['Кадастровые номера иных объектов недвижимости, в пределах ' \
+                            'которых расположен объект недвижимости'] = '-'
             print('')
             print(chek_realty_type[bs_content.find('objecttype').text])
+            dict_result['Наименование'] = chek_realty_type[bs_content.find('objecttype').text]
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
-                list_result.append(bs_content.find('adrs:note').text)
+                dict_result['адрес'] = bs_content.find('adrs:note').text
             else:
                 print(bs_content.find('address').find('adrs:postalcode').text, end=', ')
                 print(bs_content.find('address').find('adrs:region').text, end=', ')
@@ -139,12 +191,27 @@ def xml_bs(xml):
                       bs_content.find('adrs:street').attrs['type'], sep=' ', end=', ')
                 print(bs_content.find('adrs:level1').attrs['type'],
                       bs_content.find('adrs:level1').attrs['value'], sep=' ', end=', ')
-                print(bs_content.find('adrs:level3').attrs['type'],
-                      bs_content.find('adrs:level3').attrs['value'], sep=' ')
-                print()
+                # print(bs_content.find('adrs:level3').attrs['type'],
+                #       bs_content.find('adrs:level3').attrs['value'], sep=' ')
+                dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
+                                           subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
+                                           bs_content.find('adrs:street').attrs['name'] + \
+                                           bs_content.find('adrs:street').attrs['type'] + ' , ' + \
+                                           bs_content.find('adrs:level1').attrs['type'] + ' ' + \
+                                           bs_content.find('adrs:level1').attrs['value']
+                                           # bs_content.find('adrs:level3').attrs['type'] + ' ' + \
+                                           # bs_content.find('adrs:level3').attrs['value']
             print(bs_content.find('area').nextSibling)
+            dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
+            dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value']
         if bs_content.find('parcels'):  # для ЗУ
+            dict_result = {
+                'Кадастровый номер': bs_content.find('parcels').findNext().attrs['cadastralnumber'],
+                'Кадастровый номер;': bs_content.find('parcels').findNext().attrs['cadastralnumber'] + ';',
+                'Номер запроса': bs_content.find('declarattribute').attrs['requerynumber'],
+                'Дата присвоения кадастрового номера': bs_content.find('parcels').findNext().attrs['datecreated']
+            }
             print(bs_content.find('parcels').findNext().attrs['cadastralnumber'])
             print(bs_content.find('parcels').findNext().attrs['cadastralnumber'], ';', sep='')
             print(bs_content.find('declarattribute').attrs['requerynumber'])
@@ -152,36 +219,52 @@ def xml_bs(xml):
             print('')
             if bs_content.find('innercadastralnumbers'):
                 print('Кадастровые номера расположенных в пределах земельного '
-                      'участка объектов недвижимости', bs_content.find('innercadastralnumbers').text)
+                      'участка объектов недвижимости', bs_content.find('innercadastralnumbers').text.strip('\n'))
+                dict_result['Кадастровые номера расположенных в пределах земельного участка объектов недвижимости'] = \
+                    bs_content.find('innercadastralnumbers').text
+            else:
+                dict_result['Кадастровые номера расположенных в пределах земельного участка объектов недвижимости'] = \
+                    '-'
             print('Земельный участок')
-            if bs_content.find('rights'):
-                print(bs_content.find('rights').find('name').text)
+            dict_result['Наименование'] = 'Земельный участок'
             print(bs_content.find('area').findNext().nextSibling)
+            dict_result['Площадь, кв.м.'] = bs_content.find('area').findNext().nextSibling.strip('\n')
             print('specialnote')
             if bs_content.find('specialnote'):
                 print(bs_content.find('specialnote').text)
+                dict_result['specialnote'] = bs_content.find('specialnote').text
             if bs_content.find('adrs:note'):
                 print(bs_content.find('adrs:note').text)
+                dict_result['адрес'] = bs_content.find('adrs:note').text
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
+            dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value']
         for elem in bs_content.find_all('encumbrance'):
+            encum_str = ''
             print(encum_type[elem.find('type').text], end=' ')
+            encum_str = encum_type[elem.find('type').text]
             if elem.find('term'):
                 print(elem.find('term').text, end=' ')
+                encum_str = encum_str + ' ' + elem.find('term').text
             if elem.find('stopped'):
                 print(elem.find('stopped').text, end=' ')
+                encum_str = encum_str + ' ' + elem.find('stopped').text
             if elem.find('owner'):
                 if elem.find('person'):
                     print('в пользу', elem.find('person').find('content').text)
+                    encum_str = encum_str + ' в пользу ' + elem.find('person').find('content').text
                 elif elem.find('organization'):
                     print('в пользу', elem.find('organization').find('content').text)
+                    encum_str = encum_str + ' в пользу ' + elem.find('organization').find('content').text
+            list_encum.append(encum_str)
             print('-' * 30)
-
+        dict_result['Обременения'] = list_encum
+        list_encum.clear()
         if bs_content.find('right'):
             try:
                 print(owner_type[bs_content.find('right').find('type').text])
             except KeyError:
                 pass
-
+        print(dict_result)
         print('-' * 50)
         # print(bs_content)
 
@@ -190,9 +273,9 @@ def xml_bs(xml):
 #     wb = openpyxl.Workbook()
 #     # sheet = wb.active
 #     # # col = 'A'  # буква столбца, куда будет писаться информация
-    # # wb['A1'] = nl[2][1]['CadastralNumber']
-    # # wb[col + str(i)] = nl[2][1]['DateCreated']
-    # wb.save('ЕГРН.xlsx')
+# # wb['A1'] = nl[2][1]['CadastralNumber']
+# # wb[col + str(i)] = nl[2][1]['DateCreated']
+# wb.save('ЕГРН.xlsx')
 
 
 # def xml_scrap(xml):
@@ -241,7 +324,7 @@ new_path = path_zip + '\\test\\'
 
 list_xml_files = zipfile_extractall_second(list_test, new_path)
 xml_read(list_xml_files)
-print(list_result)
+# print(list_result)
 if glob.glob("obj*.xml"):
     print('файл типа obj: ')
     for name_file in glob.glob("obj*.xml"):
