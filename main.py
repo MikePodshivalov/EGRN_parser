@@ -283,7 +283,8 @@ def xml_bs(xml):
 
 def to_excel(dictionary):
     z = pd.DataFrame(dictionary.values())
-    z.to_excel("ЕГРН.xlsx")
+    f = z.append(dictionary, ignore_index=True)
+    f.to_excel("ЕГРН.xlsx")
 
 # def writer_to_excel(text):
 #     wb = openpyxl.Workbook()
