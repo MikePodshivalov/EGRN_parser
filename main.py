@@ -6,6 +6,7 @@ import shutil
 from time import sleep
 import openpyxl
 from bs4 import BeautifulSoup
+import pandas as pd
 
 list_encum = []
 chek_realty_type = {
@@ -193,14 +194,22 @@ def xml_bs(xml):
                       bs_content.find('adrs:level1').attrs['value'], sep=' ', end=', ')
                 # print(bs_content.find('adrs:level3').attrs['type'],
                 #       bs_content.find('adrs:level3').attrs['value'], sep=' ')
-                dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
+                if bs_content.find('adrs:level3'):
+                    dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
+                                           subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
+                                           bs_content.find('adrs:street').attrs['name'] + \
+                                           bs_content.find('adrs:street').attrs['type'] + ' , ' + \
+                                           bs_content.find('adrs:level1').attrs['type'] + ' ' + \
+                                           bs_content.find('adrs:level1').attrs['value'] + ' ' + \
+                                           bs_content.find('adrs:level3').attrs['type'] + ' ' + \
+                                           bs_content.find('adrs:level3').attrs['value']
+                else:
+                    dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
                                            subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
                                            bs_content.find('adrs:street').attrs['name'] + \
                                            bs_content.find('adrs:street').attrs['type'] + ' , ' + \
                                            bs_content.find('adrs:level1').attrs['type'] + ' ' + \
                                            bs_content.find('adrs:level1').attrs['value']
-                                           # bs_content.find('adrs:level3').attrs['type'] + ' ' + \
-                                           # bs_content.find('adrs:level3').attrs['value']
             print(bs_content.find('area').nextSibling)
             dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
             print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
@@ -261,13 +270,20 @@ def xml_bs(xml):
         list_encum.clear()
         if bs_content.find('right'):
             try:
-                print(owner_type[bs_content.find('right').find('type').text])
+                dict_result['Объем прав'] = owner_type[bs_content.find('right').find('type').text]
             except KeyError:
                 pass
-        print(dict_result)
+        else:
+            dict_result['Объем прав'] = '-'
+        to_excel(dict_result)
+        # print(dict_result)
         print('-' * 50)
         # print(bs_content)
 
+
+def to_excel(dictionary):
+    z = pd.DataFrame(dictionary.values())
+    z.to_excel("ЕГРН.xlsx")
 
 # def writer_to_excel(text):
 #     wb = openpyxl.Workbook()
