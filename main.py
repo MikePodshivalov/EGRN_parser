@@ -6,7 +6,7 @@ import shutil
 from time import sleep
 import openpyxl
 from bs4 import BeautifulSoup
-import pandas as pd
+import csv
 
 list_encum = []
 chek_realty_type = {
@@ -282,9 +282,14 @@ def xml_bs(xml):
 
 
 def to_excel(dictionary):
-    z = pd.DataFrame(dictionary.values())
-    f = z.append(dictionary, ignore_index=True)
-    f.to_excel("ЕГРН.xlsx")
+    with open('ЕГРН.csv', 'a') as f:
+        writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
+        writer.writeheader()
+        writer.writerow(dictionary)
+
+
+
+
 
 # def writer_to_excel(text):
 #     wb = openpyxl.Workbook()
