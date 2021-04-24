@@ -9,6 +9,49 @@ from bs4 import BeautifulSoup
 import csv
 
 list_encum = []
+
+category_parcels_type = {
+    '003001000000': 'ЗЕМЛИ СЕЛЬСКОХОЗЯЙСТВЕННОГО НАЗНАЧЕНИЯ',
+    '003001000010': 'Сельскохозяйственные угодья',
+    '003001000020': 'Земельные участки, занятые внутрихозяйственными дорогами, коммуникациями, '
+                    'лесными насаждениями, предназначенными для обеспечения защиты земель от '
+                    'негативного воздействия, водными объектами, а также занятые зданиями, '
+                    'сооружениями, используемыми для производства, хранения и первичной '
+                    'переработки сельскохозяйственной продукции',
+    '003001000030': 'Прочие земельные участки из состава земель сельскохозяйственного назначения',
+    '003002000000': 'ЗЕМЛИ НАСЕЛЕННЫХ ПУНКТОВ',
+    '003002000010': 'Земельные участки, отнесенные к зонам сельскохозяйственного использования',
+    '003002000020': 'Земельные участки, занятые жилищным фондом и объектами инженерной инфраструктуры '
+                    'жилищно-коммунального комплекса',
+    '003002000030': 'Земельные участки, приобретенные (предоставленные) для индивидуального жилищного строительства',
+    '003002000040': 'Земельные участки, приобретенные (предоставленные) на условиях осуществления на них жилищного '
+                    'строительства (за исключением индивидуального жилищного строительства',
+    '003002000060': 'Земельные участки, приобретенные (предоставленные) для ведения личного подсобного хозяйства'
+                    ' садоводства и огородничества или животноводства, а также дачного хозяйства',
+    '003002000090': 'Земельные участки, отнесенные к производственным территориальным зонам и зонам '
+                    'инженерных и транспортных инфраструктур',
+    '003002000110': 'Земельные участки для обеспечения обороны',
+    '003002000120': 'Земельные участки для обеспечения безопасности',
+    '003002000130': 'Земельные участки для обеспечения таможенных нужд',
+    '003002000100': 'Прочие земельные участки',
+    '003003000000': 'ЗЕМЛИ ПРОМЫШЛЕННОСТИ, ЭНЕРГЕТИКИ, ТРАНСПОРТА, СВЯЗИ, РАДИОВЕЩАНИЯ, ТЕЛЕВИДЕНИЯ, ИНФОРМАТИКИ, '
+                    'ЗЕМЛИ ДЛЯ ОБЕСПЕЧЕНИЯ КОСМИЧЕСКОЙ ДЕЯТЕЛЬНОСТИ, ЗЕМЛИ ОБОРОНЫ, БЕЗОПАСНОСТИ И ЗЕМЛИ ИНОГО '
+                    'СПЕЦИАЛЬНОГО НАЗНАЧЕНИЯ',
+    '003003000010': 'Земельные участки из состава земель промышленности',
+    '003003000020': 'Земельные участки из состава земель энергетики',
+    '003003000030': 'Земельные участки из состава земель транспорта',
+    '003003000040': 'Земельные участки из состава земель связи, радиовещания, телевидения, информатики',
+    '003003000060': 'Земельные участки из состава земель обороны',
+    '003003000070': 'Земельные участки из состава земель безопасности',
+    '003008000010': 'Земельные участки из состава земель для обеспечения таможенных нужд',
+    '003003000080': 'Земельные участки из состава земель иного специального назначения',
+    '003004000000': 'ЗЕМЛИ ОСОБО ОХРАНЯЕМЫХ ТЕРРИТОРИЙ И ОБЪЕКТОВ',
+    '003005000000': 'ЗЕМЛИ ЛЕСНОГО ФОНДА',
+    '003006000000': 'ЗЕМЛИ ВОДНОГО ФОНДА',
+    '003007000000': 'ЗЕМЛИ ЗАПАСА',
+    '003008000000': 'ЗЕМЕЛЬНЫЕ УЧАСТКИ, ДЛЯ КОТОРЫХ КАТЕГОРИЯ ЗЕМЕЛЬ НЕ УСТАНОВЛЕНА',
+}
+
 chek_realty_type = {
     '002001002000': 'Здание',
     '002001003000': 'Помещение',
@@ -164,56 +207,28 @@ def xml_bs(xml):
                 'Номер запроса': bs_content.find('declarattribute').attrs['requerynumber'],
                 'Дата присвоения кадастрового номера': bs_content.find('realty').findNext().attrs['datecreated']
             }
-            print(bs_content.find('realty').findNext().attrs['cadastralnumber'])
-            print(bs_content.find('realty').findNext().attrs['cadastralnumber'], ';', sep='')
-            print(bs_content.find('declarattribute').attrs['requerynumber'])
-            print(bs_content.find('realty').findNext().attrs['datecreated'])
-            if bs_content.find('cadastralnumberoks'):
-                print('Кадастровые номера иных объектов недвижимости, '
-                      'в пределах которых расположен объект недвижимости', bs_content.find('cadastralnumberoks').text)
-                dict_result['Кадастровые номера иных объектов недвижимости, в пределах ' \
-                            'которых расположен объект недвижимости'] = bs_content.find('cadastralnumberoks').text
-            else:
-                dict_result['Кадастровые номера иных объектов недвижимости, в пределах ' \
-                            'которых расположен объект недвижимости'] = '-'
-            print('')
-            print(chek_realty_type[bs_content.find('objecttype').text])
-            dict_result['Наименование'] = chek_realty_type[bs_content.find('objecttype').text]
-            if bs_content.find('adrs:note'):
-                print(bs_content.find('adrs:note').text)
-                dict_result['адрес'] = bs_content.find('adrs:note').text
-            else:
-                print(bs_content.find('address').find('adrs:postalcode').text, end=', ')
-                print(bs_content.find('address').find('adrs:region').text, end=', ')
-                if bs_content.find('adrs:urbandistrict'):
-                    print(bs_content.find('adrs:urbandistrict').attrs['name'],
-                          bs_content.find('adrs:urbandistrict').attrs['type'], sep=' ', end=', ')
-                print(bs_content.find('adrs:street').attrs['name'],
-                      bs_content.find('adrs:street').attrs['type'], sep=' ', end=', ')
-                print(bs_content.find('adrs:level1').attrs['type'],
-                      bs_content.find('adrs:level1').attrs['value'], sep=' ', end=', ')
-                # print(bs_content.find('adrs:level3').attrs['type'],
-                #       bs_content.find('adrs:level3').attrs['value'], sep=' ')
-                if bs_content.find('adrs:level3'):
-                    dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
-                                           subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
-                                           bs_content.find('adrs:street').attrs['name'] + \
-                                           bs_content.find('adrs:street').attrs['type'] + ' , ' + \
-                                           bs_content.find('adrs:level1').attrs['type'] + ' ' + \
-                                           bs_content.find('adrs:level1').attrs['value'] + ' ' + \
-                                           bs_content.find('adrs:level3').attrs['type'] + ' ' + \
-                                           bs_content.find('adrs:level3').attrs['value']
-                else:
-                    dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
-                                           subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
-                                           bs_content.find('adrs:street').attrs['name'] + \
-                                           bs_content.find('adrs:street').attrs['type'] + ' , ' + \
-                                           bs_content.find('adrs:level1').attrs['type'] + ' ' + \
-                                           bs_content.find('adrs:level1').attrs['value']
-            print(bs_content.find('area').nextSibling)
-            dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
-            print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
-            dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value']
+            dict_result['Кадастровые номера иных объектов недвижимости, в пределах ' \
+                        'которых расположен объект недвижимости'] = \
+                chek_Nonetype(bs_content.find('cadastralnumberoks'))
+            dict_result['Наименование'] = chek_realty_type[chek_Nonetype(bs_content.find('objecttype'))]
+            # if dict_result['адрес'] == '':
+            #    if bs_content.find('adrs:level3') and bs_content.find('address'):
+            #         dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
+            #                                subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
+            #                                bs_content.find('adrs:street').attrs['name'] + \
+            #                                bs_content.find('adrs:street').attrs['type'] + ' , ' + \
+            #                                bs_content.find('adrs:level1').attrs['type'] + ' ' + \
+            #                                bs_content.find('adrs:level1').attrs['value'] + ' ' + \
+            #                                bs_content.find('adrs:level3').attrs['type'] + ' ' + \
+            #                                bs_content.find('adrs:level3').attrs['value']
+            #     else:
+            #         dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
+            #                                subject_num[bs_content.find('address').find('adrs:region').text] + ', ' + \
+            #                                bs_content.find('adrs:street').attrs['name'] + \
+            #                                bs_content.find('adrs:street').attrs['type'] + ' , ' + \
+            #                                bs_content.find('adrs:level1').attrs['type'] + ' ' + \
+            #                                bs_content.find('adrs:level1').attrs['value']
+            # else:
         if bs_content.find('parcels'):  # для ЗУ
             dict_result = {
                 'Кадастровый номер': bs_content.find('parcels').findNext().attrs['cadastralnumber'],
@@ -221,31 +236,15 @@ def xml_bs(xml):
                 'Номер запроса': bs_content.find('declarattribute').attrs['requerynumber'],
                 'Дата присвоения кадастрового номера': bs_content.find('parcels').findNext().attrs['datecreated']
             }
-            print(bs_content.find('parcels').findNext().attrs['cadastralnumber'])
-            print(bs_content.find('parcels').findNext().attrs['cadastralnumber'], ';', sep='')
-            print(bs_content.find('declarattribute').attrs['requerynumber'])
-            print(bs_content.find('parcels').findNext().attrs['datecreated'])
-            print('')
-            if bs_content.find('innercadastralnumbers'):
-                print('Кадастровые номера расположенных в пределах земельного '
-                      'участка объектов недвижимости', bs_content.find('innercadastralnumbers').text.strip('\n'))
-                dict_result['Кадастровые номера расположенных в пределах земельного участка объектов недвижимости'] = \
-                    bs_content.find('innercadastralnumbers').text
-            else:
-                dict_result['Кадастровые номера расположенных в пределах земельного участка объектов недвижимости'] = \
-                    '-'
-            print('Земельный участок')
+            dict_result['Кадастровые номера расположенных в пределах земельного участка объектов недвижимости'] = \
+                chek_Nonetype(bs_content.find('innercadastralnumbers'))
             dict_result['Наименование'] = 'Земельный участок'
-            print(bs_content.find('area').findNext().nextSibling)
-            dict_result['Площадь, кв.м.'] = bs_content.find('area').findNext().nextSibling.strip('\n')
-            print('specialnote')
-            if bs_content.find('specialnote'):
-                print(bs_content.find('specialnote').text)
-                dict_result['specialnote'] = bs_content.find('specialnote').text
-            if bs_content.find('adrs:note'):
-                print(bs_content.find('adrs:note').text)
-                dict_result['адрес'] = bs_content.find('adrs:note').text
-            print(bs_content.find('cadastralcost').attrs['value'], 'рублей')
+            dict_result['specialnote'] = chek_Nonetype(bs_content.find('specialnote'))
+            # dict_result['Категория ЗУ'] = chek_Nonetype(bs_content.find(''))
+        dict_result['адрес'] = chek_Nonetype(bs_content.find('adrs:note'))
+        if bs_content.find('area'):
+            dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
+        if bs_content.find('cadastralcost'):
             dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value']
         for elem in bs_content.find_all('encumbrance'):
             encum_str = ''
@@ -265,30 +264,28 @@ def xml_bs(xml):
                     print('в пользу', elem.find('organization').find('content').text)
                     encum_str = encum_str + ' в пользу ' + elem.find('organization').find('content').text
             list_encum.append(encum_str)
-            print('-' * 30)
         dict_result['Обременения'] = list_encum
+
+        print(dict_result)
         list_encum.clear()
-        if bs_content.find('right'):
-            try:
-                dict_result['Объем прав'] = owner_type[bs_content.find('right').find('type').text]
-            except KeyError:
-                pass
-        else:
-            dict_result['Объем прав'] = '-'
-        to_excel(dict_result)
+        # to_excel(dict_result)
         # print(dict_result)
         print('-' * 50)
         # print(bs_content)
 
 
-def to_excel(dictionary):
-    with open('ЕГРН.csv', 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
-        writer.writeheader()
-        writer.writerow(dictionary)
+def chek_Nonetype(bs):
+    if bs is None:
+        return ''
+    else:
+        return bs.text
 
 
-
+# def to_excel(dictionary):
+#     with open('ЕГРН.csv', 'a') as f:
+#         writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
+#         writer.writeheader()
+#         writer.writerow(dictionary)
 
 
 # def writer_to_excel(text):
