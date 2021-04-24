@@ -460,7 +460,7 @@ def xml_bs(xml):
         if bs_content.find('area'):
             dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
         if bs_content.find('cadastralcost'):
-            dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value']
+            dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value'] + ' рублей'
         for elem in bs_content.find_all('encumbrance'):
             encum_str = ''
             print(encum_type[elem.find('type').text], end=' ')
@@ -483,7 +483,7 @@ def xml_bs(xml):
 
         print(dict_result)
         list_encum.clear()
-        # to_excel(dict_result)
+        to_excel(dict_result)
         # print(dict_result)
         print('-' * 50)
         # print(bs_content)
@@ -496,11 +496,11 @@ def chek_Nonetype(bs):
         return bs.text
 
 
-# def to_excel(dictionary):
-#     with open('ЕГРН.csv', 'a') as f:
-#         writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
-#         writer.writeheader()
-#         writer.writerow(dictionary)
+def to_excel(dictionary):
+    with open('ЕГРН.csv', 'a') as f:
+        writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
+        writer.writeheader()
+        writer.writerow(dictionary)
 
 
 # def writer_to_excel(text):
