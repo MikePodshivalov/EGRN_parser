@@ -1,8 +1,6 @@
 import os, glob
 import re
 import zipfile
-import xml.etree.ElementTree as ET
-import shutil
 from time import sleep
 import openpyxl
 from bs4 import BeautifulSoup
@@ -75,6 +73,8 @@ def xml_bs(xml):
                         'которых расположен объект недвижимости'] = \
                 chek_Nonetype(bs_content.find('cadastralnumberoks'))
             dict_result['Наименование'] = d.chek_realty_type[chek_Nonetype(bs_content.find('objecttype'))]
+            if bs_content.find('param:material'):
+                dict_result['Материал'] = d.wall_material[bs_content.find('param:material').attrs['wall']]
             # if dict_result['адрес'] == '':
             #    if bs_content.find('adrs:level3') and bs_content.find('address'):
             #         dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
@@ -140,9 +140,14 @@ def xml_bs(xml):
                     encum_str = encum_str + ' в пользу ' + elem.find('organization').find('content').text
             list_encum.append(encum_str)
         dict_result['Обременения'] = list_encum
-
+        if bs_content.find('right'):
+            try:
+                print(d.owner_type[bs_content.find('right').find('type').text])
+                dict_result['Объем прав'] = d.owner_type[bs_content.find('right').find('type').text]
+            except:
+                pass
         # print(dict_result)
-        print(bs_content)
+        # print(bs_content)
         list_encum.clear()
         to_excel(dict_result)
         # print(dict_result)
