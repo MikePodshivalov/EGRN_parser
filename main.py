@@ -77,6 +77,15 @@ def xml_bs(xml):
                 dict_result['Материал'] = d.wall_material[bs_content.find('param:material').attrs['wall']]
             if bs_content.find('assignationbuilding'):
                 dict_result['Назначение'] = d.assignation_building[bs_content.find('assignationbuilding').text]
+            if bs_content.find('exploitationchar'):
+                try:
+                    dict_result['Год ввода в эксплуатацию'] = bs_content.find('exploitationchar').attrs['yearused']
+                except:
+                    pass
+                try:
+                    dict_result['Год завершения строительства'] = bs_content.find('exploitationchar').attrs['yearbuilt']
+                except:
+                    pass
             # if dict_result['адрес'] == '':
             #    if bs_content.find('adrs:level3') and bs_content.find('address'):
             #         dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
