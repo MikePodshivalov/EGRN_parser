@@ -9,7 +9,12 @@ import dict_catalog as d
 
 
 list_encum = []
-
+fieldnames = ['Кадастровый номер', 'Кадастровый номер;', 'Номер запроса', 'Дата присвоения кадастрового номера',
+              'Кадастровые номера расположенных в пределах земельного участка объектов недвижимости',
+              'Кадастровые номера иных объектов недвижимости, в пределах которых расположен объект недвижимости',
+              'Наименование', 'specialnote', 'Категория ЗУ', 'Вид разрешенного использования', 'адрес',
+              'Площадь, кв.м.', 'Кадастровая стоимость', 'Обременения', 'Объем прав', 'Назначение',
+              'Год ввода в эксплуатацию', 'Год завершения строительства', 'Материал', 'Правообладатель', 'Объем прав']
 
 def input_path_zip():
     '''вводим путь до выписок ЕГРН
@@ -164,7 +169,7 @@ def xml_bs(xml):
                 pass
         else:
             dict_result['Объем прав'] = ''
-
+        chek_dict(dict_result)
         # print(dict_result)
         # print(bs_content)
         list_encum.clear()
@@ -172,6 +177,14 @@ def xml_bs(xml):
         print(dict_result)
         print('-' * 80)
         # print(bs_content)
+
+
+def chek_dict(d):
+    for name in fieldnames:
+        try:
+            d[name]
+        except KeyError:
+            d[name] = ''
 
 
 def chek_Nonetype(bs):
@@ -183,7 +196,7 @@ def chek_Nonetype(bs):
 
 def to_excel(dictionary):
     with open('ЕГРН.csv', 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=list(dictionary.keys()))
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(dictionary)
 
