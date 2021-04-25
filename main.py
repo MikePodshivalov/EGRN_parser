@@ -75,6 +75,8 @@ def xml_bs(xml):
             dict_result['Наименование'] = d.chek_realty_type[chek_Nonetype(bs_content.find('objecttype'))]
             if bs_content.find('param:material'):
                 dict_result['Материал'] = d.wall_material[bs_content.find('param:material').attrs['wall']]
+            if bs_content.find('assignationbuilding'):
+                dict_result['Назначение'] = d.assignation_building[bs_content.find('assignationbuilding').text]
             # if dict_result['адрес'] == '':
             #    if bs_content.find('adrs:level3') and bs_content.find('address'):
             #         dict_result['адрес'] = bs_content.find('address').find('adrs:postalcode').text + ', ' + \
