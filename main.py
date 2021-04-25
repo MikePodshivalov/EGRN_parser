@@ -115,12 +115,15 @@ def xml_bs(xml):
                     d.utilization_code[bs_content.find('utilization').attrs['utilization']]
             except:
                 pass
-
         dict_result['адрес'] = chek_Nonetype(bs_content.find('adrs:note'))
         if bs_content.find('area'):
             dict_result['Площадь, кв.м.'] = bs_content.find('area').nextSibling.strip('\n')
+        else:
+            dict_result['Площадь, кв.м.'] = ''
         if bs_content.find('cadastralcost'):
             dict_result['Кадастровая стоимость'] = bs_content.find('cadastralcost').attrs['value'] + ' рублей'
+        else:
+            dict_result['Кадастровая стоимость'] = ''
         for elem in bs_content.find_all('encumbrance'):
             encum_str = ''
             # print(d.encum_type[elem.find('type').text], end=' ')
@@ -141,16 +144,21 @@ def xml_bs(xml):
             list_encum.append(encum_str)
         dict_result['Обременения'] = list_encum
         if bs_content.find('right'):
+            if bs_content.find('right').find('governance'):
+                dict_result['Правообладатель'] = chek_Nonetype(bs_content.find('right').find('governance').find('name'))
             try:
-                print(d.owner_type[bs_content.find('right').find('type').text])
+                # print(d.owner_type[bs_content.find('right').find('type').text])
                 dict_result['Объем прав'] = d.owner_type[bs_content.find('right').find('type').text]
             except:
                 pass
+        else:
+            dict_result['Объем прав'] = ''
+
         # print(dict_result)
         # print(bs_content)
         list_encum.clear()
         to_excel(dict_result)
-        # print(dict_result)
+        print(dict_result)
         print('-' * 80)
         # print(bs_content)
 
